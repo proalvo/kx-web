@@ -25,7 +25,7 @@ bin/create-competition.php   CLI helper: creates org+competition, prints API key
 1. Upload files; point the (sub)domain document root to `public/`
    (or upload everything and adjust the rewrite in `.htaccess`).
 2. Create a MariaDB database and import `sql/schema.sql`.
-3. Create `config/config.local.php`:
+3. Create/edit `config/config.local.php`:
    ```php
    <?php return ['db' => ['dsn' => 'mysql:host=localhost;dbname=XXX;charset=utf8mb4',
                           'user' => 'XXX', 'password' => 'XXX']];
