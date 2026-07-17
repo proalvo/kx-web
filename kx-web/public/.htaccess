@@ -1,0 +1,23 @@
+# KX-Web — route everything to the front controller
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Subdirectory install (e.g. https://example.fi/kx-results/):
+    # uncomment and adjust to match config 'base_path':
+    # RewriteBase /kx-results
+
+    # Optional: app root outside the webroot (see index.php / KX_APP_ROOT).
+    # Some hosts allow setting env vars here:
+    # SetEnv KX_APP_ROOT /home/USER/kx-web-app
+
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
+# Pass Authorization header through to PHP (needed on some hosts for Bearer auth)
+<IfModule mod_setenvif.c>
+    SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+</IfModule>
