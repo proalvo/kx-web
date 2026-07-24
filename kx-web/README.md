@@ -25,14 +25,17 @@ bin/create-competition.php   CLI helper: creates org+competition, prints API key
 1. Upload files; point the (sub)domain document root to `public/`
    (or upload everything and adjust the rewrite in `.htaccess`).
 2. Create a MariaDB database and import `sql/schema.sql`.
-3. Create/edit `config/config.local.php`:
+   ```bash
+   mysql -u {user} -p {database} < schema.sql`
+   ```
+4. Create/edit `config/config.local.php`:
    ```php
    <?php return ['db' => ['dsn' => 'mysql:host=localhost;dbname=XXX;charset=utf8mb4',
                           'user' => 'XXX', 'password' => 'XXX']];
    ```
-4. Register the organization ONCE and get its provisioning key:
+5. Register the organization ONCE and get its provisioning key:
    `php bin/create-organization.php "Melonta- ja soutuliitto" FIN office@example.fi`
-5. Enter the printed ORGANIZATION key into kx-server settings.
+6. Enter the printed ORGANIZATION key into kx-server settings.
    From now on kx-server creates competitions itself
    (`POST /api/v1/competitions`) and receives each competition's
    API key automatically — no website admin needed per competition.
