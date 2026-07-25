@@ -15,7 +15,7 @@ final class EventModel
     public function upsertFromSync(string $competitionId, array $e): void
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO event (event_id, competition_id, event_code, event_name, gates, sort_order)
+            'INSERT INTO kx_event (event_id, competition_id, event_code, event_name, gates, sort_order)
              VALUES (:event_id, :competition_id, :event_code, :event_name, :gates, :sort_order)
              ON DUPLICATE KEY UPDATE
                 event_code = VALUES(event_code),
@@ -37,7 +37,7 @@ final class EventModel
     public function findByCode(string $competitionId, string $eventCode): ?array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT * FROM event WHERE competition_id = ? AND event_code = ?'
+            'SELECT * FROM kx_event WHERE competition_id = ? AND event_code = ?'
         );
         $stmt->execute([$competitionId, $eventCode]);
         return $stmt->fetch() ?: null;
@@ -49,8 +49,8 @@ final class EventModel
         $stmt = $this->pdo->prepare(
             'SELECT e.event_code, e.event_name, e.gates, e.sort_order,
                     p.phase, p.status, p.updated_at
-             FROM event e
-             LEFT JOIN phase p ON p.event_id = e.event_id AND p.status <> \'hidden\'
+             FROM kx_event e
+             LEFT JOIN kx_phase p ON p.event_id = e.event_id AND p.status <> \'hidden\'
              WHERE e.competition_id = ?
              ORDER BY e.sort_order, e.event_code,
                       FIELD(p.phase, \'TIME_TRIAL\',\'QUALIFICATION\',\'QUARTER_FINAL\',

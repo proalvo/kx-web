@@ -33,7 +33,7 @@ final class OrganizationModel
         $secret = substr($rest, $dot + 1);
 
         $stmt = $this->pdo->prepare(
-            "SELECT * FROM organization WHERE org_id = ? AND status = 'active'"
+            "SELECT * FROM kx_organization WHERE org_id = ? AND status = 'active'"
         );
         $stmt->execute([$orgId]);
         $row = $stmt->fetch();
@@ -49,7 +49,7 @@ final class OrganizationModel
     {
         $slug = $base;
         $n = 1;
-        $stmt = $this->pdo->prepare('SELECT COUNT(*) FROM competition WHERE slug = ?');
+        $stmt = $this->pdo->prepare('SELECT COUNT(*) FROM kx_competition WHERE slug = ?');
         while (true) {
             $stmt->execute([$slug]);
             if ((int)$stmt->fetchColumn() === 0) {

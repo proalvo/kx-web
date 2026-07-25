@@ -20,13 +20,13 @@ final class RateLimitModel
         $window = gmdate('Y-m-d H:i:00', (int)(floor(time() / $this->windowSeconds) * $this->windowSeconds));
 
         $stmt = $this->pdo->prepare(
-            'INSERT INTO rate_limit (bucket, window_start, hits) VALUES (?, ?, 1)
+            'INSERT INTO kx_rate_limit (bucket, window_start, hits) VALUES (?, ?, 1)
              ON DUPLICATE KEY UPDATE hits = hits + 1'
         );
         $stmt->execute([$bucket, $window]);
 
         $stmt = $this->pdo->prepare(
-            'SELECT hits FROM rate_limit WHERE bucket = ? AND window_start = ?'
+            'SELECT hits FROM kx_rate_limit WHERE bucket = ? AND window_start = ?'
         );
         $stmt->execute([$bucket, $window]);
         return (int)$stmt->fetchColumn() <= $this->maxHits;

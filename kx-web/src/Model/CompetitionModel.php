@@ -29,7 +29,7 @@ final class CompetitionModel
         $secret        = substr($apiKey, $dot + 1);
 
         $stmt = $this->pdo->prepare(
-            'SELECT * FROM competition WHERE competition_id = ?'
+            'SELECT * FROM kx_competition WHERE competition_id = ?'
         );
         $stmt->execute([$competitionId]);
         $row = $stmt->fetch();
@@ -43,11 +43,16 @@ final class CompetitionModel
     /** Upsert from a CompetitionSync payload (id and slug never change here). */
     public function upsertFromSync(string $competitionId, array $p): void
     {
+        // DEBUG: Log what we're receiving for this competition
+        if (isset($p['banner_url'])) {
+            error_log('[KX-WEB-SYNC] banner_url for ' . $competitionId . ': ' . ($p['banner_url'] ?? 'NULL'));
+        }
+        
         $stmt = $this->pdo->prepare(
-            'UPDATE competition SET
+            'UPDATE kx_competition SET
                 name = :name, country = :country, location = :location,
                 start_date = :start_date, end_date = :end_date,
-                time_zone = :time_zone, comp_type = :comp_type
+                time_zone = :time_zone, comp_type = :comp_type, banner_url = :banner_url
              WHERE competition_id = :id'
         );
         $stmt->execute([
@@ -58,6 +63,7 @@ final class CompetitionModel
             'end_date'   => (string)$p['end_date'],
             'time_zone'  => (string)($p['time_zone'] ?? 'Europe/Helsinki'),
             'comp_type'  => (string)($p['comp_type'] ?? 'Domestic'),
+            'banner_url' => $p['banner_url'] ?? null,
             'id'         => $competitionId,
         ]);
     }
@@ -67,8 +73,8 @@ final class CompetitionModel
     {
         $sql = "SELECT c.slug, c.name, c.country, c.location,
                        c.start_date, c.end_date, o.name AS organization
-                FROM competition c
-                JOIN organization o ON o.org_id = c.org_id
+                FROM kx_competition c
+                JOIN kx_organization o ON o.org_id = c.org_id
                 WHERE c.status = 'published'";
         $args = [];
 
@@ -105,8 +111,8 @@ final class CompetitionModel
     {
         $stmt = $this->pdo->prepare(
             "SELECT c.*, o.name AS organization
-             FROM competition c
-             JOIN organization o ON o.org_id = c.org_id
+             FROM kx_competition c
+             JOIN kx_organization o ON o.org_id = c.org_id
              WHERE c.slug = ? AND c.status = 'published'"
         );
         $stmt->execute([$slug]);

@@ -30,7 +30,7 @@ final class PhaseModel
     {
         // Upsert the phase row
         $stmt = $this->pdo->prepare(
-            'INSERT INTO phase (phase_id, event_id, phase, status, published_at)
+            'INSERT INTO kx_phase (phase_id, event_id, phase, status, published_at)
              VALUES (:phase_id, :event_id, :phase, :status,
                      IF(:status2 <> \'hidden\', NOW(), NULL))
              ON DUPLICATE KEY UPDATE
@@ -48,10 +48,10 @@ final class PhaseModel
         $phaseId = $this->phaseId($eventId, $phase);
 
         // Full snapshot replace
-        $this->pdo->prepare('DELETE FROM phase_entry WHERE phase_id = ?')->execute([$phaseId]);
+        $this->pdo->prepare('DELETE FROM kx_phase_entry WHERE phase_id = ?')->execute([$phaseId]);
 
         $ins = $this->pdo->prepare(
-            'INSERT INTO phase_entry
+            'INSERT INTO kx_phase_entry
                 (entry_id, phase_id, grp, slot_no, bib, rank,
                  first_name, last_name, club, country, icf_id, nf_id,
                  score, dns, dnf, dsq, ral,
@@ -98,12 +98,12 @@ final class PhaseModel
     {
         if ($phase !== null) {
             $stmt = $this->pdo->prepare(
-                "UPDATE phase SET status = 'hidden' WHERE event_id = ? AND phase = ?"
+                "UPDATE kx_phase SET status = 'hidden' WHERE event_id = ? AND phase = ?"
             );
             $stmt->execute([$eventId, $phase]);
         } else {
             $stmt = $this->pdo->prepare(
-                "UPDATE phase SET status = 'hidden' WHERE event_id = ?"
+                "UPDATE kx_phase SET status = 'hidden' WHERE event_id = ?"
             );
             $stmt->execute([$eventId]);
         }
@@ -118,8 +118,8 @@ final class PhaseModel
         $stmt = $this->pdo->prepare(
             "SELECT p.phase_id, p.phase, p.status, p.updated_at,
                     e.event_code, e.event_name, e.gates
-             FROM phase p
-             JOIN event e ON e.event_id = p.event_id
+             FROM kx_phase p
+             JOIN kx_event e ON e.event_id = p.event_id
              WHERE e.competition_id = ? AND e.event_code = ?
                AND p.phase = ? AND p.status <> 'hidden'"
         );
@@ -137,8 +137,8 @@ final class PhaseModel
         $stmt = $this->pdo->prepare(
             "SELECT p.phase_id, p.phase, p.status, p.updated_at,
                     e.event_code, e.event_name, e.gates
-             FROM phase p
-             JOIN event e ON e.event_id = p.event_id
+             FROM kx_phase p
+             JOIN kx_event e ON e.event_id = p.event_id
              WHERE e.competition_id = ? AND p.status = 'live'
              ORDER BY p.updated_at DESC
              LIMIT 1"
@@ -155,7 +155,7 @@ final class PhaseModel
             'SELECT grp, slot_no, bib, rank, first_name, last_name, club, country,
                     score, dns, dnf, dsq, ral,
                     gate1, gate2, gate3, gate4, gate5, gate6, gate7, gate8
-             FROM phase_entry
+             FROM kx_phase_entry
              WHERE phase_id = ?
              ORDER BY grp, COALESCE(rank, 255), slot_no'
         );
@@ -201,7 +201,7 @@ final class PhaseModel
     private function phaseId(string $eventId, string $phase): string
     {
         $stmt = $this->pdo->prepare(
-            'SELECT phase_id FROM phase WHERE event_id = ? AND phase = ?'
+            'SELECT phase_id FROM kx_phase WHERE event_id = ? AND phase = ?'
         );
         $stmt->execute([$eventId, $phase]);
         return (string)$stmt->fetchColumn();

@@ -20,7 +20,7 @@ final class SyncLogModel
         string $message = ''
     ): void {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO sync_log (competition_id, endpoint, payload_hash, ip, result, message)
+            'INSERT INTO kx_sync_log (competition_id, endpoint, payload_hash, ip, result, message)
              VALUES (?, ?, ?, ?, ?, ?)'
         );
         $stmt->execute([$competitionId, $endpoint, $payloadHash, $ip, $result, mb_substr($message, 0, 500)]);
