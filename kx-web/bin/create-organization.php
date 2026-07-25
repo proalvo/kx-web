@@ -33,7 +33,7 @@ if (!preg_match('/^[A-Z]{3}$/', $country)) {
 
 $pdo = Db::pdo($config['db']);
 
-$stmt = $pdo->prepare('SELECT org_id FROM organization WHERE name = ?');
+$stmt = $pdo->prepare('SELECT org_id FROM kx_organization WHERE name = ?');
 $stmt->execute([$name]);
 if ($stmt->fetchColumn()) {
     exit("Organization already exists. To rotate its key, extend this script or use the admin UI.\n");
@@ -44,7 +44,7 @@ $secret = rtrim(strtr(base64_encode(random_bytes(24)), '+/', '-_'), '=');
 $orgKey = 'org.' . $orgId . '.' . $secret;
 
 $pdo->prepare(
-    "INSERT INTO organization (org_id, name, country, contact_email, status, org_key_hash, org_key_hint)
+    "INSERT INTO kx_organization (org_id, name, country, contact_email, status, org_key_hash, org_key_hint)
      VALUES (?, ?, ?, ?, 'active', ?, ?)"
 )->execute([
     $orgId, $name, $country, $email,
