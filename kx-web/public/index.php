@@ -59,21 +59,48 @@ $router->get('/api/v1/public/competitions/{slug}/live',
 // HTML pages (server-rendered) — minimal placeholders for now
 // ---------------------------------------------------------------------
 $router->get('/',                          [KxWeb\Controller\PageController::class, 'home']);
+$router->get('/competitions',              [KxWeb\Controller\PageController::class, 'home']); // alias
 $router->get('/competition/{slug}',                  [KxWeb\Controller\PageController::class, 'competition']);
 $router->get('/competition/{slug}/{eventCode}',      [KxWeb\Controller\PageController::class, 'event']);
 $router->get('/competition/{slug}/{eventCode}/{phase}', [KxWeb\Controller\PageController::class, 'phase']);
 
+$request = Request::fromGlobals($config['base_path'] ?? '');
+$isApi   = str_starts_with($request->path, '/api/');
+$base    = rtrim((string)($config['base_path'] ?? ''), '/');
+
+/** Browser-friendly error page for non-API paths. */
+$htmlError = function (int $status, string $message) use ($base): Response {
+    $safe = htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
+    $home = htmlspecialchars($base . '/', ENT_QUOTES, 'UTF-8');
+    return Response::html(
+        '<!doctype html><html lang="en"><head><meta charset="utf-8">'
+        . '<meta name="viewport" content="width=device-width, initial-scale=1">'
+        . '<title>' . $status . ' — KX Results</title>'
+        . '<link rel="icon" type="image/svg+xml" href="'
+        . htmlspecialchars($base . '/favicon.svg', ENT_QUOTES, 'UTF-8') . '">'
+        . '<style>body{font:15px/1.5 system-ui,sans-serif;color:#1c2b39;background:#f6f8fa;'
+        . 'display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0}'
+        . 'main{text-align:center;padding:2rem}h1{font-size:1.4rem}'
+        . 'a{color:#0b5cad}</style></head><body><main>'
+        . '<h1>' . $status . ' — ' . $safe . '</h1>'
+        . '<p><a href="' . $home . '">Go to the competition list</a></p>'
+        . '</main></body></html>',
+        $status
+    );
+};
+
 try {
-    $request  = Request::fromGlobals($config['base_path'] ?? '');
     $response = $router->dispatch($request, $config);
 } catch (\KxWeb\Http\HttpException $e) {
-    $response = Response::json(['ok' => false, 'error' => $e->getMessage()], $e->status);
+    $response = $isApi
+        ? Response::json(['ok' => false, 'error' => $e->getMessage()], $e->status)
+        : $htmlError($e->status, $e->getMessage());
 } catch (\Throwable $e) {
     error_log('[kx-web] ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
-    $response = Response::json(
-        ['ok' => false, 'error' => $config['debug'] ? $e->getMessage() : 'Internal server error'],
-        500
-    );
+    $message = $config['debug'] ? $e->getMessage() : 'Internal server error';
+    $response = $isApi
+        ? Response::json(['ok' => false, 'error' => $message], 500)
+        : $htmlError(500, $message);
 }
 
 $response->send();
