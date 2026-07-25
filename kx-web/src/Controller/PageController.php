@@ -52,7 +52,7 @@ final class PageController extends BaseController
             $body = '<div class="cards">' . $items . '</div>';
         }
 
-        return Response::html($this->layout('Competitions', '<h1>Competitions</h1>' . $body));
+        return Response::html($this->layout('Competitions', '<h1>Competitions</h1>' . $body, '', null));
     }
 
     /** GET /competition/{slug} — events of the competition with their phases */
@@ -90,7 +90,7 @@ final class PageController extends BaseController
 
         return Response::html($this->layout($c['name'], $body, $this->crumbs([
             [$this->url('/'), 'Competitions'],
-        ])));
+        ]), $c['banner_url'] ?? null));
     }
 
     /** GET /competition/{slug}/{eventCode} — redirect to the most relevant phase */
@@ -155,7 +155,7 @@ final class PageController extends BaseController
             $this->layout($title, $body, $this->crumbs([
                 [$this->url('/'), 'Competitions'],
                 [$this->url('/competition/' . $c['slug']), $c['name']],
-            ])),
+            ]), $c['banner_url'] ?? null),
             200,
             ['Cache-Control' => $data['status'] === 'official' ? 'max-age=300' : 'no-cache']
         );
@@ -345,9 +345,11 @@ HTML;
         return $start === $end ? $start : $start . ' – ' . $end;
     }
 
-    private function layout(string $title, string $body, string $nav = ''): string
+    private function layout(string $title, string $body, string $nav = '', ?string $bannerUrl = null): string
     {
         $title = self::e($title);
+        $favicon = self::e($this->url('/favicon.svg'));
+        $banner = $bannerUrl ? '<img src="' . self::e($bannerUrl) . '" alt="Competition banner" class="banner">' : '';
         return <<<HTML
 <!doctype html>
 <html lang="en">
@@ -355,6 +357,7 @@ HTML;
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>$title — KX Results</title>
+<link rel="icon" type="image/svg+xml" href="$favicon">
 <style>
   :root { --line:#e3e9ef; --dim:#5a7286; --accent:#0b5cad; --live:#c0392b; }
   * { box-sizing:border-box; }
@@ -381,6 +384,9 @@ HTML;
            background:#e8eef4; color:var(--dim); vertical-align:middle; }
   .status-live .badge, .badge.status-live { background:var(--live); color:#fff; }
   .badge.status-official, .status-official .badge { background:#256029; color:#fff; }
+  .banner { max-width:100%; height:auto; margin:1.5rem 0 1rem; display:block; border-radius:4px;
+            max-height:120px; }
+  @media (min-width:768px) { .banner { max-height:180px; } }
   table.results { border-collapse:collapse; width:100%; background:#fff;
                   border:1px solid var(--line); border-radius:8px; overflow:hidden;
                   margin:.4rem 0 1rem; font-size:.92rem; }
@@ -397,6 +403,7 @@ HTML;
 <body>
 <main>
 $nav
+$banner
 $body
 </main>
 </body>

@@ -45,7 +45,7 @@ final class ProvisioningController extends BaseController
 
         // Idempotency: same competition_id from the same org -> conflict info,
         // never a silent duplicate and never a key leak.
-        $stmt = $this->pdo->prepare('SELECT org_id, slug FROM competition WHERE competition_id = ?');
+        $stmt = $this->pdo->prepare('SELECT org_id, slug FROM kx_competition WHERE competition_id = ?');
         $stmt->execute([(string)$p['competition_id']]);
         if ($existing = $stmt->fetch()) {
             if ($existing['org_id'] === $org['org_id']) {
@@ -69,7 +69,7 @@ final class ProvisioningController extends BaseController
         $apiKey = $p['competition_id'] . '.' . $secret;
 
         $stmt = $this->pdo->prepare(
-            "INSERT INTO competition
+            "INSERT INTO kx_competition
                 (competition_id, org_id, slug, name, country, location,
                  start_date, end_date, time_zone, comp_type, status,
                  api_key_hash, api_key_hint)

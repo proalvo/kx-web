@@ -122,7 +122,7 @@ final class SyncController extends BaseController
             $phases = new PhaseModel($this->pdo);
             if ($scope === 'competition') {
                 $stmt = $this->pdo->prepare(
-                    "UPDATE competition SET status = 'draft' WHERE competition_id = ?"
+                    "UPDATE kx_competition SET status = 'draft' WHERE competition_id = ?"
                 );
                 $stmt->execute([$competition['competition_id']]);
                 return 1;

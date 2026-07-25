@@ -107,7 +107,7 @@ final class PublicApiController extends BaseController
     {
         $phase ??= $body;
         // ETag must be content-addressed: hash the actual response body.
-        // (Deriving it from phase.updated_at + entry count was a bug — a
+        // (Deriving it from kx_phase.updated_at + entry count was a bug — a
         // snapshot replace keeps the count identical and MariaDB skips the
         // phase-row timestamp bump when values are unchanged, so results
         // could change without the ETag changing, and pollers got stale
