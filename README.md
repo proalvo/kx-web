@@ -8,4 +8,4 @@ Before you can publish the the results, you need to do following:
 2. send an email to kari.nykanen@wwcf.fi to get organisation key for the kx-results(*). This enables to publish results on [wwcfi.fi/kx-results](https://wwcfi.fi/kx-results).
 3. organize you competition.
 
-* ) This is just temporary solution as the code is missing 'self service' to create a organization key which is needed to connect your local `kx-results` to `kx-web`. 
+Note: *) This is just temporary solution as the code is missing 'self service' to create a organization key which is needed to connect your local `kx-results` to `kx-web`. 
