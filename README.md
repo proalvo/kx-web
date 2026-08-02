@@ -1,4 +1,4 @@
-# kx-web
+# kx-web - Publish your kayak cross competition results
 This is public results website for Kayak Cross competitions (companion to KX-Results)
 
 This is public repository for the `kx-web` software - but **you do not need to install this software, if you use [wwcf.fi/kx-results](https://wwcf.fi/kx-results) for your competitions to publish the results in real time**.
